@@ -1,0 +1,65 @@
+---
+title: "Pub Quiz Scoreboard"
+execute:
+  echo: false
+html:
+  theme: materia
+---
+
+
+```{r}
+#| warning: false
+library(tidyverse)
+library(DT)
+```
+
+```{r}
+file_list <- list.files(path = "data", pattern = "*.csv", full.names = TRUE)
+file_list <- file_list[order(file.info(file_list)$mtime)] # Sort files by modification time
+rounds <- seq_along(file_list)
+
+
+```
+
+
+```{r}
+team_name = read_csv("team-name/pub-quiz-team-name-spring-2024.csv", show_col_types = FALSE) %>% 
+            mutate(team_captain = str_trim(team_captain))
+```
+
+
+```{r}
+#| warning: false
+scores_df <- map_dfr(file_list, ~{
+          read_csv(.x) %>% 
+          mutate(Round = rounds[match(.x, file_list)]) %>% 
+          select(name,score, Round)
+          #right_join(team_name, by = join_by(name == team_captain) ) %>%select(name,score) %>% 
+          
+})
+```
+
+```{r}
+#| warning: false
+scoreboard <- scores_df %>% 
+              right_join(team_name, by = join_by(name == team_captain) ) %>% 
+              drop_na() %>% 
+              pivot_wider(values_from = score, names_from = Round, names_prefix = "round_") %>% 
+              mutate(total = rowSums(select(.,starts_with("round_")),na.rm=TRUE)) %>% 
+                arrange(desc(total)) %>% 
+              mutate(place = row_number(), .before = 1) %>% 
+              rename(captain = name) %>% 
+              relocate(captain, .after =team_name)
+              
+```
+
+
+
+```{r}
+scoreboard %>% 
+  rename_all(~ str_to_title(str_replace(., "_", " "))) %>% 
+
+datatable(head(scoreboard), class = 'cell-border stripe hover', rownames = FALSE) %>% 
+  DT::formatStyle(columns = 4, fontSize = '50%')
+```
+
