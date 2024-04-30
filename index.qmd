@@ -23,7 +23,7 @@ rounds <- seq_along(file_list)
 
 
 ```{r}
-team_name = read_csv("team-name/pub-quiz-team-name-spring-2024.csv", show_col_types = FALSE) %>% 
+team_name = read_csv("team-name/pub-quiz-team-name-spring-2024_1.csv", show_col_types = FALSE) %>% 
             mutate(team_captain = str_trim(team_captain))
 ```
 
