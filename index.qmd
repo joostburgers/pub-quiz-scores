@@ -11,6 +11,7 @@ html:
 #| warning: false
 library(tidyverse)
 library(DT)
+library(scales)
 ```
 
 ```{r}
@@ -57,10 +58,18 @@ scoreboard <- scores_df %>%
 
 ```{r}
 #minor edit
-scoreboard %>% 
-  rename_all(~ str_to_title(str_replace(., "_", " "))) %>% 
+display_scoreboard <- scoreboard %>% 
+                      mutate(percentile_rank = percent_rank(total)) %>% 
+                      mutate(bonus_points = 5*(percentile_rank - .9)) %>% 
+                      mutate(bonus_points = ifelse(bonus_points<0,0,bonus_points)) %>% 
+                      mutate(percentile_rank= percent(percentile_rank)) %>% 
+                      mutate(bonus_points = round(bonus_points*10,0)) %>% 
+  rename_all(~ str_to_title(str_replace(., "_", " "))) 
+```
 
-datatable(head(scoreboard), class = 'cell-border stripe hover', rownames = FALSE) %>% 
+
+```{r}
+datatable(head(display_scoreboard), class = 'cell-border stripe hover', rownames = FALSE) %>% 
   DT::formatStyle(columns = 4, fontSize = '50%')
 ```
 
