@@ -11,6 +11,7 @@ html:
 #| warning: false
 library(tidyverse)
 library(DT)
+library(kableExtra)
 library(scales)
 ```
 
@@ -69,7 +70,12 @@ display_scoreboard <- scoreboard %>%
 
 
 ```{r}
-datatable(head(display_scoreboard), class = 'cell-border stripe hover', rownames = FALSE) %>% 
-  DT::formatStyle(columns = 4, fontSize = '50%')
+#DT::datatable(head(display_scoreboard), class = 'cell-border stripe hover', rownames = FALSE) 
+```
+
+```{r}
+display_scoreboard %>% 
+  kbl() %>% 
+  kable_paper(c("striped","hover"), full_width=F)
 ```
 
